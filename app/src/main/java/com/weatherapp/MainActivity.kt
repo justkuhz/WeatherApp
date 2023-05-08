@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                     var city = response.getJSONObject("location").getString("name")
                     var region = response.getJSONObject("location").getString("region")
                     var country = response.getJSONObject("location").getString("country")
-                    //cityNameTV.text = "$city, $region\n$country"
+                    cityNameTV.text = "$city, $region\n$country"
 
                     var temperature = response.getJSONObject("current").getString("temp_f")
                     temperatureTV.text = "$temperature°F"
@@ -136,10 +136,10 @@ class MainActivity : AppCompatActivity() {
                     var day = response.getJSONObject("current").getInt("is_day")
                     if(day == 1) {
                         // daytime
-                        //Picasso.get().load(R.drawable.daytime).into(backIV)
+                        Picasso.get().load(R.drawable.daytime).into(backIV)
                     } else {
                         // nighttime
-                        //Picasso.get().load(R.drawable.nighttime).into(backIV)
+                        Picasso.get().load(R.drawable.nighttime).into(backIV)
                     }
 
                     // Take weather information and break it into hours. Stored into the array 'hourArray'
@@ -161,7 +161,8 @@ class MainActivity : AppCompatActivity() {
 
                     // notify adapter of change in data
                     weatherRVAdapter.notifyDataSetChanged()
-                    //weatherRV.visibility = View.VISIBLE
+                    weatherRV.visibility = View.VISIBLE
+                    todayTV.visibility = View.VISIBLE
 
                 } catch (e : JSONException) {
                     e.printStackTrace()
@@ -169,10 +170,9 @@ class MainActivity : AppCompatActivity() {
             },
             { error ->
                 Toast.makeText(this, "Please enter a valid city name...", Toast.LENGTH_SHORT).show()
+                todayTV.visibility = View.INVISIBLE
             }
         )
-
         requestQueue.add(jsonObjectRequest)
-
     }
 }

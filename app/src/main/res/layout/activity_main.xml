@@ -144,6 +144,7 @@
             android:text="Today's Weather Forecast"
             android:id="@+id/idTVtodayhour"
             android:textColor="@color/white"
+            android:visibility="invisible"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -152,7 +153,7 @@
             android:id="@+id/idRVWeather"
             android:layout_alignParentBottom="true"
             android:orientation="horizontal"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </RelativeLayout>
