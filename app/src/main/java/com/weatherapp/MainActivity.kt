@@ -1,3 +1,6 @@
+// Weather Phone Application written in Kotlin
+// By Ken Zhu
+
 package com.weatherapp
 
 import android.Manifest
@@ -28,6 +31,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.Locale
 
+// Suppressing deprecation for Picasso library
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +48,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var todayTV : TextView
     private lateinit var weatherRVModalArrayList : ArrayList<WeatherRVModal>
     private lateinit var weatherRVAdapter : WeatherRVAdapter
+
+    // API Key for weather API
+    // https://www.weatherapi.com/
+    private val key = "590dc4ce1cf749d6986202249232404"
+
+    // This was originally for location permission
     private var PERMISSION_CODE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +76,8 @@ class MainActivity : AppCompatActivity() {
         weatherRVAdapter = WeatherRVAdapter(this, weatherRVModalArrayList)
         weatherRV.adapter = weatherRVAdapter
 
+
+        // Check user location permissions for this app (no longer needed or used)
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // if permissions not granted, request them
@@ -88,6 +100,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Request permission from user for locations to make sure we can use the app (no longer needed or used)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -104,10 +117,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Requests data from API and display through XML
     private fun getWeatherInfo (cityName : String) {
         var url : String =
-            "http://api.weatherapi.com/v1/forecast.json?key=590dc4ce1cf749d6986202249232404&q=$cityName&days=1&aqi=no&alerts=no"
+            "http://api.weatherapi.com/v1/forecast.json?key=$key&q=$cityName&days=1&aqi=no&alerts=no"
 
+        // Use Volley Library to process each request made to weather API
         var requestQueue = Volley.newRequestQueue(this)
         var jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->
@@ -116,15 +131,18 @@ class MainActivity : AppCompatActivity() {
                 weatherRVModalArrayList.clear()
 
                 try {
+                    // Location text views
                     var city = response.getJSONObject("location").getString("name")
                     var region = response.getJSONObject("location").getString("region")
                     var country = response.getJSONObject("location").getString("country")
                     cityNameTV.text = "$city, $region\n$country"
 
+                    // Temperate text views
                     var temperature = response.getJSONObject("current").getString("temp_f")
                     temperatureTV.text = "$temperature°F"
                     temperatureTV.visibility = View.VISIBLE
 
+                    // Weather text views
                     var condition = response.getJSONObject("current").getJSONObject("condition").getString("text")
                     var conditionIcon = response.getJSONObject("current").getJSONObject("condition").getString("icon")
                     conditionTV.text = "$condition"
@@ -132,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                     Picasso.get().load("http:$conditionIcon").into(iconIV)
                     iconIV.visibility = View.VISIBLE
 
-
+                    // Set background depending on time at location
                     var day = response.getJSONObject("current").getInt("is_day")
                     if(day == 1) {
                         // daytime
@@ -147,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                     var forecast0 = forecastObj.getJSONArray("forecastday").getJSONObject(0)
                     var hourArray = forecast0.getJSONArray("hour")
 
-                    // extracting data from each hour of the day for the weather in a city
+                    // extracting data from each hour of the day for the weather in a city (24-hours)
                     for (i in 0 .. hourArray.length()) {
                         var hourObj = hourArray.getJSONObject(i)
                         var time = hourObj.getString("time")
@@ -159,7 +177,7 @@ class MainActivity : AppCompatActivity() {
                         weatherRVModalArrayList.add(WeatherRVModal(time, temp, img, wind))
                     }
 
-                    // notify adapter of change in data
+                    // notify adapter of change in data to update
                     weatherRVAdapter.notifyDataSetChanged()
                     weatherRV.visibility = View.VISIBLE
                     todayTV.visibility = View.VISIBLE
